@@ -178,13 +178,23 @@ function uploadImage(req, res){
         var file_ext = ext_split[1];
         
         if(userId != req.user.sub){
-            removeFilesOfUploads(res, file_path, 'No tienes permiso para actualizar');
+            return removeFilesOfUploads(res, file_path, 'No tienes permiso para actualizar');
         }
 
         if(file_ext == 'png' || file_ext == 'jpg' || file_ext == 'jpeg' || file_ext == 'gif'){
 
+            //Actualizar documentos del usuario 
+            User.findByIdAndUpdate(userId,{image: file_name}, {new:true}, (err, userUpdate)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion'});
+
+                if(!userUpdate){
+                    return res.status(404).send({ message: 'No se ha podido actualizar usuario'});
+                }
+        
+                return res.status(200).send({ user: userUpdate});
+            });
         }else{
-            removeFilesOfUploads(res, file_path, 'extension no valida');
+            return removeFilesOfUploads(res, file_path, 'extension no valida');
         }
 
     }else{
@@ -198,6 +208,19 @@ function removeFilesOfUploads(res, file_path, message){
     });
 }
 
+function getImageFile( req, res){
+    var image_file = req.params.imageFile; 
+    var path_file = './uploads/users/'+ image_file
+
+    fs.exists(path_file, (exists) =>{
+        if(exists){
+            res.sendFile(path.resolve(path_file)); 
+        }else{
+            res.status(200).send({message: 'No existe la imagen...'});
+        }
+    });
+}
+
 module.exports = {
     home,
     pruebas,
@@ -206,5 +229,6 @@ module.exports = {
     getUser,
     getUsers,
     updateUser,
-    uploadImage
+    uploadImage,
+    getImageFile
 }

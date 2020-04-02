@@ -8,6 +8,7 @@ var app = express();
 
 //Cargar rutas  
 var user_routes = require('./routes/user');
+var follow_routes = require('./routes/follow');
 
 //Middlewares
 //Convertir lo que llega a Body a JSON 
@@ -17,7 +18,8 @@ app.use(bodyParser.json());
 //Cors 
 
 //Rutas 
-app.use('/api', user_routes)
+app.use('/api', user_routes);
+app.use('/api', follow_routes);
 
 //Exportar 
 module.exports = app; 
